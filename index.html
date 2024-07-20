@@ -222,7 +222,7 @@
             acheivement = Sheet["AK" + row_today].v.toLocaleString();
             average = Math.round(Sheet["BC" + row_today].v).toLocaleString();
             //無事故実績
-            safe = parseInt((now - accident)/1000/60/60/24) - 1;
+            safe = parseInt((now - accident)/1000/60/60/24);
             //累計予算
             totalBudget = Sheet["AH" + row_today].v.toLocaleString();
             //累計実績
