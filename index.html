@@ -196,7 +196,7 @@
     //事故日
     const accident = new Date(2024, 6, 16); //nowの月が１小さいから事故日も実際の一月前とする（実際の事故日は2024年7月16日）
     //エクセルファイルで参照する行
-    let row_today = 3 + Day;
+    let row_today = 3 + Day - 1;
     let row_tomorrow = row_today + 1;
 
     //ファイル参照＆セルの値を取得
