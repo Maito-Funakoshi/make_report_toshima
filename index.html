@@ -189,7 +189,7 @@
     //予算達成率
     let rate;
     //今日の日付
-    const now = new Date() + 1; //引数を指定しないと月は0始まり（例：５月→４）
+    const now = new Date(); //引数を指定しないと月は0始まり（例：５月→４）
     const Year = now.getFullYear();
     const Month = now.getMonth()+1;
     const Day = now.getDate();
