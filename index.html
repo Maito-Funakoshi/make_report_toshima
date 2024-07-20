@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/ress@4.0.0/dist/ress.min.css">
+    <title>銀のさら文教店日報作成フォーム</title>
+
+<!--cssはここから-->
+    <style>
+        textarea {
+            resize:none;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-left: 150px;
+            padding-left: 1em;
+            padding-right: 1em;
+            height: 216px;
+            flex: 1;
+            width: 100%;
+            max-width: 410px;
+            background: #FEFAEE;
+            font-size: 18px;
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            padding: 20px;
+            background-color: #000000;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .ginsara {
+            color: #B90018;
+        }
+        .hidden {
+            display:none;
+        }
+        pre {
+            display:inline;
+        }
+        .report {
+            font-family:sans-serif;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px #268a26;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .report-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .form {
+            display:flex;
+            justify-content:center;
+            flex-flow:column;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 720px;
+        }
+        .button {
+            border-radius: 6px;
+            margin-top: 32px;
+            margin-left: 10px;
+            margin-right: 10px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            width: 280px;
+            display: block;
+            letter-spacing: 0.05em;
+            background: #9F8955;
+            color: #fff;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        .button:active {
+            -webkit-transform: translate(0,2px);
+            -moz-transform: translate(0,2px);
+            transform: translate(0,2px);
+            border-bottom:none;
+        }
+        .text {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-left: 150px;
+            padding-left: 1em;
+            padding-right: 1em;
+            height: 48px;
+            flex: 1;
+            width: 100%;
+            max-width: 410px;
+            background: #FEFAEE;
+            font-size: 18px;
+        }
+        .file, .comment, .laborPlan, .deliverTime{
+            margin-left:150px;
+        }
+        
+        @media only screen and (max-width: 768px) {
+            .text, textarea, .file, .comment, .laborPlan, .deliverTime {
+                width: 57.25%;
+                max-width: none;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .button {
+                width: 100%;
+            }
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+<!--ここまで-->
+
+</head>
+<body>
+    
+<!--htmlはここから-->
+    <div class="header"><span class="ginsara">銀のさら</span>文京店日報作成フォーム</div>
+    <div class="form">
+        <!--参照ファイル-->
+        <input type="file" id="fileInput" class="file" accept=".xlsx">
+
+        <!--自由コメント-->
+        <div class="comment">▼自由コメント</div>
+        <textarea id="textarea" class="textarea" value="1" cols="50" rows="5" placeholder="コメントを入力"></textarea>
+
+        <!--クルー予定労働時間-->
+        
+        <!--
+        <div class="laborPlan">▼クルー予定労働時間［時間］</div>
+        <input type="text" class="text" id="text1" placeholder="※記入する必要なし">
+        -->
+
+        <!--告知時間-->
+        <div class="deliverTime">▼最大告知時間［分］</div>
+        <input type="text" class="text" id="text2" placeholder="例）30">
+
+        <!--ボタンを押して日報表示-->
+        <div class="button-container">
+            <button class="button" id="make">日報作成</button>
+            <button class="button" onclick="copyReport()">コピーする</button>
+        </div>
+    </div>
+    <div class="report-wrapper">
+        <div id="report" class="hidden report"></div>
+    </div>
+<!--ここまで-->
+
+<!--JavaScriptはここから-->
+    <script>
+    //変数の宣言
+    //総客数
+    let newCustomer;
+    let repeater;
+    let totalCustomer;
+    let reservationCustomer;
+    let reservationPrice;
+    //予算
+    let budget;
+    //実績
+    let acheivement;
+    let average;
+    //無事故実績
+    let safe;
+    //累計予算
+    let totalBudget;
+    //累計実績
+    let totalAcheivement;
+    //予算達成率
+    let rate;
+    //今日の日付
+    const now = new Date(); //引数を指定しないと月は0始まり（例：５月→４）
+    const Year = now.getFullYear();
+    const Month = now.getMonth()+1;
+    const Day = now.getDate();
+    //事故日
+    const accident = new Date(2024, 6, 16); //nowの月が１小さいから事故日も実際の一月前とする（実際の事故日は2024年7月16日）
+    //エクセルファイルで参照する行
+    let row_today = 3 + Day;
+    let row_tomorrow = row_today + 1;
+
+    //ファイル参照＆セルの値を取得
+    document.getElementById("fileInput").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            //ファイル参照
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const Sheet = workbook.Sheets["ジャーナル"];
+
+            //セルの値を取得
+            //総客数
+            newCustomer = Sheet["AT" + row_today].v;
+            repeater =Sheet["AU" + row_today].v;
+            totalCustomer = Sheet["AV" + row_today].v;
+            reservationCustomer =Sheet["CR" + row_tomorrow].v;
+            reservationPrice = Sheet["CS" + row_tomorrow].v;
+            //予算
+            budget = Sheet["AF" + row_today].v.toLocaleString();
+            //実績
+            acheivement = Sheet["AK" + row_today].v.toLocaleString();
+            average = Math.round(Sheet["BC" + row_today].v).toLocaleString();
+            //無事故実績
+            safe = parseInt((now - accident)/1000/60/60/24) - 1;
+            //累計予算
+            totalBudget = Sheet["AH" + row_today].v.toLocaleString();
+            //累計実績
+            totalAcheivement = Sheet["AL" + row_today].v.toLocaleString();
+            //予算達成率
+            rate = Math.round(1000 * Sheet["AM" +row_today].v) /10;
+        };
+        reader.readAsArrayBuffer(file);
+    });
+    document.querySelector("#make").addEventListener("click", () => {
+	console.log("clicked");
+        //2回ボタンを押しても日報が二つ表示されないようにid="report"内を空にする
+        document.getElementById("report").innerHTML = "";
+
+        //日報を作成
+        document.getElementById("report").innerHTML = document.getElementById("textarea").value + "<br><br><br><br>"
+            + "【総客数】" + "<br>"
+            + "新規" + newCustomer + "件" + "<br>"
+            + "リピータ" + repeater + "件" + "<br>"
+            + "合計" + totalCustomer + "件" + "<br><br>"
+            + "明日の予約は" + reservationCustomer + "件" + reservationPrice +"万です。" + "<br><br>"
+            + "【予算】" + "<br>"
+            + "銀 ¥" + budget + "<br><br>"
+            + "【実績】" + "<br>"
+            + "銀 ¥" + acheivement + "<br><br>"
+            + "客単価 ¥" + average + "<br><br>"
+            + "【無事故実績】" + "<br>"
+            + safe + "日" + "<br><br>"
+            + "【クルー教育】" + "<br><br><br><br>"
+            + "【告知時間】" + "<br>"
+            + "出前館最大告知時間 " + document.getElementById("text2").value + "分" + "<br>"
+            + "WOSと電話最大告知時間 " + document.getElementById("text2").value + "分" + "<br>"
+            + "遅配 0件" + "<br>"
+            + "受注ロス 0件" + "<br><br>"
+            + "【" + Month + "月累計予算】" + "<br>"
+            + "銀 ¥" + totalBudget + "<br><br>"
+            + "【" + Month + "月累計実績】" + "<br>"
+            + "銀 ¥" + totalAcheivement + "<br><br>"
+            + "予算達成率 " + rate + "%";
+
+
+        //日報を表示
+        report.classList.remove("hidden");
+    });
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text)
+    };
+
+    function copyReport() {
+        const reportContent = document.getElementById("report").innerText;
+        copyToClipboard(reportContent);
+    };
+    </script>
+
+    <!--参照ファイルで必要な記述-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<!--ここまで-->
+
+</body>
+</html>
