@@ -121,7 +121,22 @@
             background: #FEFAEE;
             font-size: 18px;
         }
-        .file, .comment, .accidentdate, .laborPlan, .deliverTime{
+        .text-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-left: 150px;
+            gap: 10px;
+        }
+        .text-wrapper .text {
+            width: 80px;
+            margin: 0;
+        }
+        .text-wrapper p {
+            margin: 0;
+            font-size: 18px;
+        }
+        .file, .comment, .accidentdate, .reservation, .laborPlan, .deliverTime{
             margin-left:150px;
         }
         @media only screen and (max-width: 768px) {
@@ -164,8 +179,10 @@
 
         <!-- 予約 -->
         <div class="reservation">▼明日の予約</div>
-        <input type="text" class="text" id="orders" placeholder="例）12"><p>件</p>
-        <input type="text" class="text" id="price" placeholder="例）9.9"><p>万</p>
+        <div class="text-wrapper">
+            <input type="text" class="text" id="orders" placeholder="例）12"><p>件</p>
+            <input type="text" class="text" id="price" placeholder="例）9.9"><p>万</p>
+        </div>
 
         <!--最終事故日-->
         <div class="accidentdate">▼最終事故日を入力してください</div>
