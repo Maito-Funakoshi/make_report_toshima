@@ -162,13 +162,18 @@
         <input type="text" class="text" id="text1" placeholder="※記入する必要なし">
         -->
 
+        <!-- 予約 -->
+        <div class="reservation">▼明日の予約</div>
+        <input type="text" class="text" id="orders" placeholder="例）12"><p>件</p>
+        <input type="text" class="text" id="price" placeholder="例）9.9"><p>万</p>
+
         <!--最終事故日-->
         <div class="accidentdate">▼最終事故日を入力してください</div>
         <input type="date" id="accidentInput" class="date">
 
         <!--告知時間-->
         <div class="deliverTime">▼最大告知時間［分］</div>
-        <input type="text" class="text" id="text2" placeholder="例）30">
+        <input type="text" class="text" id="delivertime" placeholder="例）30">
 
         <!--ボタンを押して日報表示-->
         <div class="button-container">
@@ -184,23 +189,30 @@
 <!--JavaScriptはここから-->
     <script>
     //変数の宣言
-    //総客数
-    let newCustomer;
-    let repeater;
-    let totalCustomer;
-    let reservationCustomer;
-    let reservationPrice;
     //予算
-    let budget;
+    let budgetGinsara;
+    let budgetKamatora;
+    let budgetTotal;
     //実績
-    let acheivement;
+    let acheivementGinsara;
+    let acheivementKamatora;
+    let acheivementTotal;
+
+    let oredersGinsara;
+    let oredersKamatora;
+    let oredersTotal;
+
     let average;
     //無事故実績
     let safe;
     //累計予算
-    let totalBudget;
+    let totalBudgetGinsara;
+    let totalBudgetKamatora;
+    let totalBudgetTotal;
     //累計実績
-    let totalAcheivement;
+    let totalAcheivementGinsara;
+    let totalAcheivementKamatora;
+    let totalAcheivementTotal;
     //予算達成率
     let rate;
     //今日の日付
@@ -232,24 +244,47 @@
             const workbook = XLSX.read(data, { type: 'array' });
             const Sheet = workbook.Sheets["ジャーナル"];
 
-            //セルの値を取得
-            //総客数
-            newCustomer = Sheet["AT" + row_today].v;
-            repeater =Sheet["AU" + row_today].v;
-            totalCustomer = Sheet["AV" + row_today].v;
-            reservationCustomer =Sheet["CR" + row_tomorrow].v;
-            reservationPrice = Sheet["CS" + row_tomorrow].v;
             //予算
-            budget = Sheet["AF" + row_today].v.toLocaleString();
+            budgetGinsara = Sheet["AD" + row_today].v.toLocaleString();
+            budgetKamatora = Sheet["AE" + row_today].v.toLocaleString();
+            budgetTotal = Sheet["AF" + rpw_today].v.toLocaleString();
+
             //実績
-            acheivement = Sheet["AK" + row_today].v.toLocaleString();
+            acheivementGinsara = Sheet["AI" + row_today].v.toLocaleString();
+            acheivementKamatora = Sheet["AJ" + row_today].v.toLocaleString();
+            acheivementTotal = Sheet["AK" + row_today].v.toLocaleString();
+
+            oredersGinsara = Sheet["AV" + row_today].v.toLocaleString();
+            oredersKamatora = Sheet["AY" + row_today].v.toLocaleString();
+            oredersTotal = Sheet["AZ" + row_today].v.toLocaleString();
+            
             average = Math.round(Sheet["BC" + row_today].v).toLocaleString();
+
             //無事故実績
             safe = parseInt((now - accident)/1000/60/60/24);
+
             //累計予算
-            totalBudget = Sheet["AH" + row_today].v.toLocaleString();
+            let sumBudGin = 0;
+            let sumBudKama = 0;
+            for (let i = 4; i < row_today + 1; i++) {
+                sumBudGin += Sheet["AD" + i].v;
+                sumBudKama += Sheet["AE" + i].v;
+            }
+            totalBudgetGinsara = sumBudGin.toLocaleString();
+            totalBudgetKamatora = sumBudkama.toLocaleString();
+            totalBudgetTotal = (totalBudgetGinsara + totalBudgetKamatora).toLocaleString();
+
             //累計実績
-            totalAcheivement = Sheet["AL" + row_today].v.toLocaleString();
+            let sumAchGin = 0;
+            let sumAchKama = 0;
+            for (let i = 4; i < row_today + 1; i++) {
+                sumAchGin += Sheet["AI" + i].v;
+                sumAchKama += Sheet["AJ" + i].v;
+            }
+            totalAcheivementGinsara = sumAchGin.toLocaleString();
+            totalAcheivementKamatora = sumAchKama.toLocaleString();
+            totalAcheivementTotal = (totalAcheivementGinsara + totalAcheivementKamatora).toLocaleString();
+
             //予算達成率
             rate = Math.round(1000 * Sheet["AM" +row_today].v) /10;
         };
@@ -264,30 +299,33 @@
         safe = parseInt((now - accident)/1000/60/60/24); 
 
         //日報を作成
-        document.getElementById("report").innerHTML = document.getElementById("textarea").value + "<br><br><br><br>"
-            + "【総客数】" + "<br>"
-            + "新規" + newCustomer + "件" + "<br>"
-            + "リピータ" + repeater + "件" + "<br>"
-            + "合計" + totalCustomer + "件" + "<br><br>"
-            + "明日の予約は" + reservationCustomer + "件" + reservationPrice +"万です。" + "<br><br>"
+        document.getElementById("report").innerHTML = document.getElementById("textarea").value + "<br><br><br>"
+            + "明日のご予約は" + document.getElementById("orders").value + "件" + document.getElementById("price").value + "万です。" + "<br><br><br>"
+            + "<br><br><br>"
             + "【予算】" + "<br>"
-            + "銀 ¥" + budget + "<br><br>"
+            + "銀 ¥" + budgetGinsara + "-<br>"
+            + "釜 ¥" + budgetKamatora + "-<br>"
+            + "計 ¥" + budgetTotal + "-<br><br>"
             + "【実績】" + "<br>"
-            + "銀 ¥" + acheivement + "<br><br>"
-            + "客単価 ¥" + average + "<br><br>"
+            + "銀 ¥" + acheivementGinsara + "-<br>"
+            + "釜 ¥" + acheivementKamatora + "-<br>"
+            + "計 ¥" + acheivementGinsara + "-<br><br>"
+            + "銀："　+ oredersGinsara + "　釜：" + oredersKamatora + "　計：" + oredersTotal + "件" + "<br><br>" 
+            + "客単価 ¥" + average + "-<br><br>"
             + "【無事故実績】" + "<br>"
             + safe + "日" + "<br><br>"
-            + "【クルー教育】" + "<br><br><br><br>"
-            + "【告知時間】" + "<br>"
-            + "出前館最大告知時間 " + document.getElementById("text2").value + "分" + "<br>"
-            + "WOSと電話最大告知時間 " + document.getElementById("text2").value + "分" + "<br>"
-            + "遅配 0件" + "<br>"
-            + "受注ロス 0件" + "<br><br>"
+            + "最大告知：" + document.getElementById("delivertime").value + "分" + "<br>"
+            + "遅配：0件" + "<br>"
+            + "受注ロス：0件" + "<br><br><br>"
             + "【" + Month + "月累計予算】" + "<br>"
-            + "銀 ¥" + totalBudget + "<br><br>"
+            + "銀 ¥" + totalBudgetGinsara + "-<br>"
+            + "釜 ¥" + totalBudgetKamatora + "-<br>"
+            + "計 ¥" + totalBudgetTotal + "-<br><br>"
             + "【" + Month + "月累計実績】" + "<br>"
-            + "銀 ¥" + totalAcheivement + "<br><br>"
-            + "予算達成率 " + rate + "%";
+            + "銀 ¥" + totalAcheivementGinsara + "-<br>"
+            + "釜 ¥" + totalAcheivementKamatora + "-<br>"
+            + "計 ¥" + totalAcheivementTotal + "-<br><br>"
+            + "予算達成率：" + rate + "%";
 
 
         //日報を表示
