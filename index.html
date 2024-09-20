@@ -244,6 +244,10 @@
             const workbook = XLSX.read(data, { type: 'array' });
             const Sheet = workbook.Sheets["ジャーナル"];
 
+            console.log(row_today);
+            console.log(Sheet["AD" + row_today]);
+            console.log(Sheet["AD" + row_today].v);
+
             //予算
             budgetGinsara = Sheet["AD" + row_today].v.toLocaleString();
             budgetKamatora = Sheet["AE" + row_today].v.toLocaleString();
