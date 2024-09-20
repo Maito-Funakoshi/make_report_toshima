@@ -245,7 +245,7 @@
     const Month = now.getMonth()+1;
     const Day = now.getDate();
     //事故日
-    let accident = localStorage.getItem('accident') ? new Date(localStorage.getItem('accident')) : new Date(2024, 6, 17);
+    let accident = localStorage.getItem('accident') ? new Date(localStorage.getItem('accident')) : new Date(2024, 4, 19);
     // 事故日の入力フィールドに保存されている値をセット
     document.getElementById("accidentInput").value = accident.toISOString().split('T')[0];
     // 事故日が変更された時に、新しい日付をlocalStorageに保存
