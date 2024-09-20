@@ -109,12 +109,23 @@
             background: #FEFAEE;
             font-size: 18px;
         }
-        .file, .comment, .laborPlan, .deliverTime{
+        #accidentInput {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-left: 150px;
+            padding-left: 1em;
+            padding-right: 1em;
+            height: 48px;
+            width: 100%;
+            max-width: 410px;
+            background: #FEFAEE;
+            font-size: 18px;
+        }
+        .file, .comment, .accidentdate, .laborPlan, .deliverTime{
             margin-left:150px;
         }
-        
         @media only screen and (max-width: 768px) {
-            .text, textarea, .file, .comment, .laborPlan, .deliverTime {
+            .text, textarea, .file, .comment, #accidentInput, .laborPlan, .deliverTime {
                 width: 57.25%;
                 max-width: none;
                 margin-left: auto;
@@ -150,6 +161,10 @@
         <div class="laborPlan">▼クルー予定労働時間［時間］</div>
         <input type="text" class="text" id="text1" placeholder="※記入する必要なし">
         -->
+
+        <!--最終事故日-->
+        <div class="accidentdate">▼最終事故日を入力してください</div>
+        <input type="date" id="accidentInput" class="date">
 
         <!--告知時間-->
         <div class="deliverTime">▼最大告知時間［分］</div>
@@ -194,7 +209,15 @@
     const Month = now.getMonth()+1;
     const Day = now.getDate();
     //事故日
-    const accident = new Date(2024, 6, 16); //nowの月が１小さいから事故日も実際の一月前とする（実際の事故日は2024年7月16日）
+    let accident = localStorage.getItem('accident') ? new Date(localStorage.getItem('accident')) : new Date(2024, 6, 17);
+    // 事故日の入力フィールドに保存されている値をセット
+    document.getElementById("accidentInput").value = accident.toISOString().split('T')[0];
+    // 事故日が変更された時に、新しい日付をlocalStorageに保存
+    document.getElementById("accidentInput").addEventListener("change", (event) => {
+        accident = new Date(event.target.value);
+        localStorage.setItem('accident', accident.toISOString()); // 新しい日付を保存
+    });
+
     //エクセルファイルで参照する行
     let row_today = 3 + Day;
     let row_tomorrow = row_today + 1;
@@ -236,6 +259,9 @@
 	console.log("clicked");
         //2回ボタンを押しても日報が二つ表示されないようにid="report"内を空にする
         document.getElementById("report").innerHTML = "";
+
+        //無事故実績の再更新
+        safe = parseInt((now - accident)/1000/60/60/24);
 
         //日報を作成
         document.getElementById("report").innerHTML = document.getElementById("textarea").value + "<br><br><br><br>"
