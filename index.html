@@ -314,6 +314,9 @@
         };
         reader.readAsArrayBuffer(file);
     });
+
+    // 日報データをローカルストレージに保存
+    let check = localStorage.getItem('checkToshima') ? JSON.parse(localStorage.getItem('checkToshima')) : [];
     document.querySelector("#make").addEventListener("click", () => {
         //2回ボタンを押しても日報が二つ表示されないようにid="report"内を空にする
         document.getElementById("report").innerHTML = "";
@@ -363,7 +366,17 @@
 
         //日報を表示
         report.classList.remove("hidden");
+
+        const newReport = {
+            date: new Date().toLocaleString()
+        };
+        //配列に追加
+        check.push(newReport);
+        //保存
+        localStorage.setItem('checkToshima', JSON.stringify(check));
     });
+    // 最後に追加されたレポートを表示
+    console.log(check);
 
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
